@@ -16,12 +16,13 @@ class Tag(models.Model):
     name = models.CharField(
         max_length=200,
         verbose_name='Название',
-        blank=True
+        unique=True
     )
     color = models.CharField(
         max_length=7,
         null=True,
-        verbose_name='Название'
+        verbose_name='Цвет в HEX',
+        unique=True
     )
     slug = models.SlugField(
         max_length=200,
@@ -58,6 +59,7 @@ class Recipe(models.Model):
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
+        related_name='recipes',
         verbose_name='Автор'
         )
 
