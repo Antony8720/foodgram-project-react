@@ -128,3 +128,6 @@ DJOSER = {
         'current_user': 'users.serializers.MyUserSerializer'
     },
 }
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

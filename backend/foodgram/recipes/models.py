@@ -39,10 +39,12 @@ class Recipe(models.Model):
     )
     tags = models.ManyToManyField(
         Tag,
+        through='RecipeTag',
         verbose_name='Список id тегов'
     )
     image = models.ImageField(
-        verbose_name='Картинка, закодированная в Base64'
+        verbose_name='Картинка, закодированная в Base64',
+        upload_to='recipes/images/'
     )
     name = models.CharField(
         verbose_name='Название',
@@ -61,7 +63,7 @@ class Recipe(models.Model):
         on_delete=models.CASCADE,
         related_name='recipes',
         verbose_name='Автор'
-        )
+    )
 
 
 class RecipeIngredient(models.Model):
@@ -75,4 +77,15 @@ class RecipeIngredient(models.Model):
     )
     amount = models.IntegerField(
         verbose_name='Количество в рецепте'
+    )
+
+
+class RecipeTag(models.Model):
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE
+    )
+    ingredient = models.ForeignKey(
+        Tag,
+        on_delete=models.CASCADE
     )
