@@ -1,9 +1,17 @@
 from rest_framework import viewsets
 
 from .models import Recipe, Ingredient
-from .serializers import RecipeWriteSerializer
+from .serializers import RecipeWriteSerializer, RecipeSerializer
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
-    serializer_class = RecipeWriteSerializer
+    
+    def get_serializer_class(self):
+        if self.action in (
+            'create',
+            'partial_update',
+            'update'
+        ):
+            return RecipeWriteSerializer
+        return RecipeSerializer

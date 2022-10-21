@@ -3,6 +3,7 @@ from rest_framework import serializers
 from django.core.files.base import ContentFile
 
 from .models import Recipe, Ingredient, Tag, RecipeIngredient
+from users.serializers import MyUserSerializer
 
 
 class Base64ImageField(serializers.ImageField):
@@ -21,6 +22,13 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 
 class RecipeIngredientSerializer(serializers.ModelSerializer):
+    id = serializers.ReadOnlyField(source="ingredient.id")
+    maesurement_init = serializers.ReadOnlyField(
+        source="ingredient.maesurement_init"
+    )
+    name = serializers.ReadOnlyField(source="ingredient.name")
+    amount = serializers.IntegerField(read_only=True)
+
     class Meta:
         model = RecipeIngredient
         fields = ('amount', 'id', 'name', 'maesurement_init',)
@@ -31,6 +39,7 @@ class RecipeIngredientWriteSerializer(RecipeIngredientSerializer):
         queryset=Ingredient.objects.all(),
         required=True,
     )
+    amount = serializers.IntegerField(write_only=True)
 
     class Meta:
         model = RecipeIngredient
@@ -43,10 +52,30 @@ class TagSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'color', 'slug',)
 
 
+class RecipeSerializer(serializers.ModelSerializer):
+    tags = TagSerializer(
+        many=True,
+        required=True
+    )
+    author = MyUserSerializer(
+        required=True
+    )
+    ingredients = RecipeIngredientSerializer(
+        many=True,
+        required=True
+    )
+    
+    class Meta:
+        model = Recipe
+        fields = ('id', 'tags', 'author', 'ingredients', 'name', 'text',
+                  'image', 'cooking_time',)
+
+
 class RecipeWriteSerializer(serializers.ModelSerializer):
     ingredients = RecipeIngredientWriteSerializer(
         many=True,
-        required=True
+        required=True,
+        # read_only=True
     )
     tags = serializers.PrimaryKeyRelatedField(
         queryset=Tag.objects.all(),
@@ -79,6 +108,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         if ingredients:
             recipe.ingredients.clear()
             for ingredient_item in ingredients:
+                print(ingredient_item)
                 recipe.ingredients.add(
                     ingredient_item['id'],
                     through_defaults={'amount': ingredient_item['amount']},

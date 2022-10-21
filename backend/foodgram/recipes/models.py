@@ -35,11 +35,13 @@ class Recipe(models.Model):
     ingredients = models.ManyToManyField(
         Ingredient,
         through='RecipeIngredient',
+        related_name='recipes',
         verbose_name='Список ингредиентов'
     )
     tags = models.ManyToManyField(
         Tag,
         through='RecipeTag',
+        related_name='recipes',
         verbose_name='Список id тегов'
     )
     image = models.ImageField(
