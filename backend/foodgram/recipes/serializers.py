@@ -22,16 +22,26 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 
 class RecipeIngredientSerializer(serializers.ModelSerializer):
-    id = serializers.ReadOnlyField(source="ingredient.id")
-    maesurement_init = serializers.ReadOnlyField(
-        source="ingredient.maesurement_init"
-    )
-    name = serializers.ReadOnlyField(source="ingredient.name")
-    amount = serializers.IntegerField(read_only=True)
+    id = serializers.SerializerMethodField()
+    maesurement_init = serializers.SerializerMethodField()
+    name = serializers.SerializerMethodField()
+    amount = serializers.SerializerMethodField()
 
     class Meta:
         model = RecipeIngredient
         fields = ('amount', 'id', 'name', 'maesurement_init',)
+
+    def get_id(self, obj):
+        return obj.id
+
+    def get_maesurement_init(self, obj):
+        return obj.ingredient.maesurement_init
+
+    def get_name(self, obj):
+        return obj.ingredient.name
+    
+    def get_amount(self, obj):
+        return obj.amount
 
 
 class RecipeIngredientWriteSerializer(RecipeIngredientSerializer):
@@ -39,7 +49,7 @@ class RecipeIngredientWriteSerializer(RecipeIngredientSerializer):
         queryset=Ingredient.objects.all(),
         required=True,
     )
-    amount = serializers.IntegerField(write_only=True)
+    amount = serializers.IntegerField()
 
     class Meta:
         model = RecipeIngredient
@@ -108,11 +118,11 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         if ingredients:
             recipe.ingredients.clear()
             for ingredient_item in ingredients:
-                print(ingredient_item)
-                recipe.ingredients.add(
-                    ingredient_item['id'],
-                    through_defaults={'amount': ingredient_item['amount']},
-                )
+                ing = ingredient_item.get('id')
+                amt = ingredient_item.get('amount')
+                new_ri, _ = RecipeIngredient.objects.get_or_create(
+                    ingredient_id=ing, amount=amt)
+                recipe.ingredients.add(new_ri)
         if tags:
             recipe.tags.clear()
             for tag in tags:
