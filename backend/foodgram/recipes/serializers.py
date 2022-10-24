@@ -83,7 +83,7 @@ class RecipeSerializer(serializers.ModelSerializer):
                   'image', 'text', 'cooking_time',)
     
     def get_is_favorited(self, obj):
-        
+
     def get_is_in_shopping_cart(self, obj):
 
 
@@ -106,49 +106,6 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         fields = ('ingredients', 'tags', 'image', 'name',
                   'text', 'cooking_time',)
 
-    def input_data(self, validated_data, instance=None):
-        validated_data['author'] = self.context.get('request').user
-        print(validated_data)
-        print(instance)
-        if instance is None:
-            try:
-                ingredients = validated_data.pop('ingredients')
-            except KeyError:
-                ingredients = []
-            try:
-                tags = validated_data.pop('tags')
-            except KeyError:
-                tags = []
-        else:
-            try:
-                ingredients = instance.pop('ingredients')
-            except KeyError:
-                ingredients = []
-            try:
-                tags = instance.pop('tags')
-            except KeyError:
-                tags = []
-        if instance is None:
-            recipe = Recipe.objects.create(author=self.context["request"].user, **validated_data)
-        else:
-            recipe = instance
-            for attr, value in instance.items():
-                setattr(recipe, attr, value)
-        if ingredients:
-            recipe.ingredients.clear()
-            for ingredient_item in ingredients:
-                ing = ingredient_item.get('id')
-                amt = ingredient_item.get('amount')
-                new_ri, _ = RecipeIngredient.objects.get_or_create(
-                    ingredient_id=ing, amount=amt)
-                recipe.ingredients.add(new_ri)
-        if tags:
-            recipe.tags.clear()
-            for tag in tags:
-                recipe.tags.add(tag)
-        recipe.save()
-        return recipe
-
     def create(self, validated_data):
         validated_data['author'] = self.context.get('request').user
         ingredients = validated_data.pop('ingredients')
@@ -157,8 +114,6 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         for ingredient_item in ingredients:
             ing = ingredient_item.get('id')
             amt = ingredient_item.get('amount')
-            print(ing)
-            print(amt)
             new_ri, _ = RecipeIngredient.objects.get_or_create(
                 ingredient_id=ing, amount=amt)
             recipe.ingredients.add(new_ri)
