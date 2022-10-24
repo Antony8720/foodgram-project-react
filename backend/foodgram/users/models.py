@@ -25,6 +25,25 @@ class User(AbstractUser):
         verbose_name='Пароль',
         max_length=150
     )
+    follower = models.ManyToManyField(
+        'self',
+        blank=True,
+        related_name='following',
+        verbose_name='подписчик',
+        symmetrical=False
+    )
+    favorite = models.ManyToManyField(
+        'recipes.recipe',
+        blank=True,
+        related_name='users_favorited',
+        verbose_name='Находится ли в избранном'
+    )
+    cart = models.ManyToManyField(
+        'recipes.recipe',
+        blank=True,
+        related_name='users_added_to_cart',
+        verbose_name='находится ли в корзине'
+    )
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'first_name', 'last_name', 'password']

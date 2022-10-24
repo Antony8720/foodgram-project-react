@@ -7,7 +7,7 @@ class Ingredient(models.Model):
     name = models.CharField(
         max_length=200
     )
-    maesurement_init = models.CharField(
+    measurement_unit = models.CharField(
         max_length=200
     )
 
