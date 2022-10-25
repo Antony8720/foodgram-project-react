@@ -18,7 +18,7 @@ class Base64ImageField(serializers.ImageField):
 class IngredientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ingredient
-        fields = ('id', 'name', 'measurement_init')
+        fields = ('id', 'name', 'measurement_unit',)
 
 
 class RecipeIngredientSerializer(serializers.ModelSerializer):
@@ -79,20 +79,27 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Recipe
-        fields = ('id', 'tags', 'author', 'ingredients', 'name',
+        fields = ('id', 'tags', 'author', 'ingredients',
+                  'is_favorited', 'is_in_shopping_cart', 'name',
                   'image', 'text', 'cooking_time',)
-    
+
     def get_is_favorited(self, obj):
+        user = self.context.get('request').user
+        if not user.is_authenticated:
+            return False
+        return user.favorite.filter(id=obj.id).exists()
 
     def get_is_in_shopping_cart(self, obj):
-
+        user = self.context.get('request').user
+        if not user.is_authenticated:
+            return False
+        return user.cart.filter(id=obj.id).exists()
 
 
 class RecipeWriteSerializer(serializers.ModelSerializer):
     ingredients = RecipeIngredientWriteSerializer(
         many=True,
-        required=True,
-        # read_only=True
+        required=True
     )
     tags = serializers.PrimaryKeyRelatedField(
         queryset=Tag.objects.all(),
@@ -140,3 +147,9 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
     def to_representation(self, Recipe):
         serializer = RecipeSerializer(instance=Recipe, context=self.context)
         return serializer.data
+
+
+class RecipeSmallSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Recipe
+        fields = ('id', 'name', 'image', 'cooking_time',)

@@ -30,12 +30,13 @@ class Tag(models.Model):
         verbose_name='Уникальный слаг'
     )
 
+
 class RecipeIngredient(models.Model):
     ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE
     )
-    amount = models.IntegerField(
+    amount = models.PositiveSmallIntegerField(
         verbose_name='Количество в рецепте'
     )
 
@@ -64,7 +65,7 @@ class Recipe(models.Model):
         verbose_name='Описание',
         max_length=200
     )
-    cooking_time = models.IntegerField(
+    cooking_time = models.PositiveSmallIntegerField(
         verbose_name='Время приготовления(в минутах)',
         validators=[MinValueValidator(1)]
     )
