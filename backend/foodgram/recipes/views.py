@@ -1,9 +1,10 @@
 from rest_framework import viewsets
 
-from .models import Recipe, Tag, Ingredient
-from .serializers import (RecipeWriteSerializer, RecipeSerializer, TagSerializer,
-                          IngredientSerializer, RecipeSmallSerializer)
-from .viewsets import AddingDeletingViewSet
+from .models import Recipe, Tag, Ingredient, RecipeIngredient
+from .serializers import (RecipeWriteSerializer, RecipeSerializer,
+                          TagSerializer, IngredientSerializer,
+                          RecipeSmallSerializer)
+from .viewsets import AddingDeletingViewSet, PdfGenerateView
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
@@ -72,3 +73,26 @@ class RecipeCartViewSet(AddingDeletingViewSet):
         self.request.user.cart.remove(Recipe)
         self.request.user.save()
 
+
+class RecipeShoppingCartDownloadView(PdfGenerateView):
+    filename = 'Shopping_cart.pdf'
+
+    def get_text_lines(self):
+        recipes = self.request.user.cart.all()
+        result = {}
+        cart_content = recipes
+        for cart_record in cart_content:
+            ingredients = cart_record.ingredients.all()
+            for ingredient in ingredients:
+                if result.get(ingredient.ingredient):
+                    result[ingredient.ingredient] += ingredient.amount
+                else:
+                    result[ingredient.ingredient] = ingredient.amount
+        text_lines = []
+        for ingredient, amount in result.items():
+            text_lines.append(
+                f"{ingredient.name} ({ingredient.measurement_unit}) "
+                f"— {amount}"
+            )
+
+        return text_lines

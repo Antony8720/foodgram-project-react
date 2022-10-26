@@ -1,4 +1,8 @@
-from recipe.viewsets import AddingDeletingViewSet
+from recipes.mixins import ListModelViewSet
+from recipes.viewsets import AddingDeletingViewSet
+from recipes.pagination import PageNumberLimitPagination
+from rest_framework import permissions
+
 from .models import User
 from .serializers import UserSubscribeSerializer
 
@@ -28,3 +32,12 @@ class UserSubscribeViewSet(AddingDeletingViewSet):
     def perform_destroy(self, Recipe):
         self.request.user.follower.remove(Recipe)
         self.request.user.save()
+
+
+class SubscriptionsViewSet(ListModelViewSet):
+    serializer_class = UserSubscribeSerializer
+    permissions_classes = (permissions.IsAuthenticated,)
+    pagination_class = PageNumberLimitPagination
+
+    def get_queryset(self):
+        return self.request.user.follower.all()

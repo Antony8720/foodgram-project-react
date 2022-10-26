@@ -3,7 +3,8 @@ from rest_framework.routers import DefaultRouter
 from django.urls import include, path
 
 from .views import (RecipeViewSet, TagViewSet, IngredientViewSet,
-                    RecipeFavoriteViewSet, RecipeCartViewSet)
+                    RecipeFavoriteViewSet, RecipeCartViewSet,
+                    RecipeShoppingCartDownloadView)
 
 router = DefaultRouter()
 
@@ -19,7 +20,7 @@ router.register('ingredients', IngredientViewSet)
 
 
 urlpatterns = [
-    path('auth/', include('djoser.urls.authtoken')),
-    path('', include('djoser.urls')),
+    path('recipes/download_shopping_cart/',
+         RecipeShoppingCartDownloadView.as_view()),
     path('', include(router.urls)),
 ]

@@ -1,8 +1,8 @@
+import importlib
 from django.db.models import Count
 from rest_framework import serializers
 from .models import User
 from djoser.serializers import UserCreateSerializer, UserSerializer
-from recipes.serializers import RecipeSmallSerializer
 
 
 class UserRegSerializer(UserCreateSerializer):
@@ -13,15 +13,21 @@ class UserRegSerializer(UserCreateSerializer):
 
 
 class MyUserSerializer(UserSerializer):
-    is_subscried = serializers.BooleanField(default=False)
+    is_subscribed = serializers.SerializerMethodField()
 
     class Meta(UserSerializer.Meta):
         model = User
         fields = ('email', 'id', 'username', 'first_name',
-                  'last_name', 'is_subscried')
+                  'last_name', 'is_subscribed')
+
+    def get_is_subscribed(self, User):
+        user = self.context.get('request').user
+        if not user.is_authenticated:
+            return False
+        return User.following.filter(id=user.id).exists()
 
 
-class UserSubscribeSerializer(serializers.ModelSerializer):
+class UserSubscribeSerializer(MyUserSerializer):
     recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
 
@@ -32,13 +38,16 @@ class UserSubscribeSerializer(serializers.ModelSerializer):
 
     def get_recipes(self, User):
         recipes_limit = int(
-            self.context.get('request').GET.get('recipes_limit',default=0)
+            self.context.get('request').GET.get('recipes_limit', default=0)
         )
         if recipes_limit > 0:
             recipes = User.recipes.all()[:recipes_limit]
         else:
-            recipes = User.objects.all()
-        serializer_class = RecipeSmallSerializer
+            recipes = User.recipes.all()
+        serializer_class = getattr(
+            importlib.import_module('recipes.serializers'),
+            'RecipeSmallSerializer',
+        )
         serializer = serializer_class(
             many=True,
             instance=recipes

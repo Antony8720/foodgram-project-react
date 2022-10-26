@@ -1,6 +1,12 @@
+import io
 from django.db import models
+from django.http import FileResponse
 from django.shortcuts import get_object_or_404
-from rest_framework import permissions, status
+from reportlab.lib.pagesizes import A4
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.pdfgen import canvas
+from rest_framework import permissions, status, views
 from .mixins import CreteDestroyModelViewSet
 from rest_framework.response import Response
 
@@ -52,3 +58,34 @@ class AddingDeletingViewSet(CreteDestroyModelViewSet):
         if not self.is_on():
             return self.error(self.error_text_destroy)
         return super().destroy(request, *args, **kwargs)
+
+
+class PdfGenerateView(views.APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    font_path = './assets/FreeSans.ttf'
+    filename = 'file.pdf'
+
+    def get_text_lines(self):
+        pass
+
+    def get(self, request):
+        buffer = io.BytesIO()
+        pdfmetrics.registerFont(TTFont('Font', self.font_path))
+        page = canvas.Canvas(buffer, pagesize=A4)
+        page.setFont("Font", 14)
+        text = page.beginText()
+        text.setTextOrigin(80, 750)
+        for text_line in self.get_text_lines():
+            text.textLine(text=text_line)
+        page.drawText(text)
+        page.showPage()
+        page.save()
+        buffer.seek(0)
+        return FileResponse(
+            buffer,
+            as_attachment=True,
+            filename=self.filename,
+        )
+           
+
+

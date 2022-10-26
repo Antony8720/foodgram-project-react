@@ -34,6 +34,7 @@ class Tag(models.Model):
 class RecipeIngredient(models.Model):
     ingredient = models.ForeignKey(
         Ingredient,
+        related_name='ingredient_in_recipe',
         on_delete=models.CASCADE
     )
     amount = models.PositiveSmallIntegerField(
@@ -75,6 +76,7 @@ class Recipe(models.Model):
         related_name='recipes',
         verbose_name='Автор'
     )
+
 
 class RecipeTag(models.Model):
     recipe = models.ForeignKey(
