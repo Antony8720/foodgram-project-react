@@ -11,6 +11,10 @@ class Ingredient(models.Model):
         max_length=200
     )
 
+    class Meta:
+        verbose_name = 'Ингредиент'
+        verbose_name_plural = 'Ингредиенты'
+
 
 class Tag(models.Model):
     name = models.CharField(
@@ -29,6 +33,10 @@ class Tag(models.Model):
         unique=True,
         verbose_name='Уникальный слаг'
     )
+
+    class Meta:
+        verbose_name = 'Тэг'
+        verbose_name_plural = 'Tэги'
 
 
 class RecipeIngredient(models.Model):
@@ -76,6 +84,11 @@ class Recipe(models.Model):
         related_name='recipes',
         verbose_name='Автор'
     )
+
+    class Meta:
+        ordering = ['-id']
+        verbose_name = 'Рецепт'
+        verbose_name_plural = 'Рецепты'
 
 
 class RecipeTag(models.Model):

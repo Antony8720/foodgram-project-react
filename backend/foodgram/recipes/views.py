@@ -1,14 +1,17 @@
 from rest_framework import viewsets
+from rest_framework.permissions import AllowAny
 
 from .models import Recipe, Tag, Ingredient, RecipeIngredient
 from .serializers import (RecipeWriteSerializer, RecipeSerializer,
                           TagSerializer, IngredientSerializer,
                           RecipeSmallSerializer)
 from .viewsets import AddingDeletingViewSet, PdfGenerateView
+from .filters import IngredientSearchFilter, RecipeFilter
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
+    
 
     def get_serializer_class(self):
         if self.action in (
@@ -23,12 +26,16 @@ class RecipeViewSet(viewsets.ModelViewSet):
 class TagViewSet(viewsets.ModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
+    permission_classes = (AllowAny,)
     pagination_class = None
 
 
 class IngredientViewSet(viewsets.ModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
+    permission_classes = (AllowAny,)
+    filter_backends = (IngredientSearchFilter)
+    search_fields = ('^name',)
     pagination_class = None
 
 
