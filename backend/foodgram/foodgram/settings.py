@@ -1,8 +1,5 @@
-
-
 import os
 from dotenv import load_dotenv, find_dotenv
-from datetime import timedelta
 
 load_dotenv(find_dotenv())
 
@@ -129,6 +126,11 @@ DJOSER = {
         'user': 'users.serializers.MyUserSerializer',
         'current_user': 'users.serializers.MyUserSerializer'
     },
+    "PERMISSIONS": {
+        "user": ["rest_framework.permissions.IsAuthenticated"],
+        "user_list": ["rest_framework.permissions.IsAuthenticated"],
+    },
+    "HIDE_USERS": False,
 }
 
 MEDIA_URL = '/media/'

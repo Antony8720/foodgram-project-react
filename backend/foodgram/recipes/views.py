@@ -1,17 +1,26 @@
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets
+from rest_framework.filters import OrderingFilter
 from rest_framework.permissions import AllowAny
 
-from .models import Recipe, Tag, Ingredient, RecipeIngredient
-from .serializers import (RecipeWriteSerializer, RecipeSerializer,
-                          TagSerializer, IngredientSerializer,
-                          RecipeSmallSerializer)
-from .viewsets import AddingDeletingViewSet, PdfGenerateView
 from .filters import IngredientSearchFilter, RecipeFilter
+from .models import Ingredient, Recipe, Tag
+from .pagination import PageNumberLimitPagination
+from .permissions import OwnerOrReadOnly
+from .serializers import (IngredientSerializer, RecipeSerializer,
+                          RecipeSmallSerializer, RecipeWriteSerializer,
+                          TagSerializer)
+from .viewsets import AddingDeletingViewSet, PdfGenerateView
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
-    
+    permission_classes = (OwnerOrReadOnly,)
+    filter_backends = (DjangoFilterBackend, OrderingFilter)
+    pagination_class = PageNumberLimitPagination
+    filterset_class = RecipeFilter
+    filterset_fields = ("tags", "author")
+    ordering_fields = ("id",)
 
     def get_serializer_class(self):
         if self.action in (
@@ -34,7 +43,7 @@ class IngredientViewSet(viewsets.ModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     permission_classes = (AllowAny,)
-    filter_backends = (IngredientSearchFilter)
+    filter_backends = (IngredientSearchFilter,)
     search_fields = ('^name',)
     pagination_class = None
 

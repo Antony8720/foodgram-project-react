@@ -1,8 +1,10 @@
 import importlib
+
 from django.db.models import Count
-from rest_framework import serializers
-from .models import User
 from djoser.serializers import UserCreateSerializer, UserSerializer
+from rest_framework import serializers
+
+from .models import User
 
 
 class UserRegSerializer(UserCreateSerializer):

@@ -1,6 +1,6 @@
 from recipes.mixins import ListModelViewSet
-from recipes.viewsets import AddingDeletingViewSet
 from recipes.pagination import PageNumberLimitPagination
+from recipes.viewsets import AddingDeletingViewSet
 from rest_framework import permissions
 
 from .models import User

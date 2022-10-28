@@ -1,4 +1,5 @@
 import io
+
 from django.db import models
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404
@@ -7,8 +8,9 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
 from rest_framework import permissions, status, views
-from .mixins import CreteDestroyModelViewSet
 from rest_framework.response import Response
+
+from .mixins import CreteDestroyModelViewSet
 
 
 class AddingDeletingViewSet(CreteDestroyModelViewSet):
@@ -86,6 +88,3 @@ class PdfGenerateView(views.APIView):
             as_attachment=True,
             filename=self.filename,
         )
-           
-
-
