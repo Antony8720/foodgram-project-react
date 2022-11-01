@@ -96,7 +96,7 @@ class RecipeTag(models.Model):
         Recipe,
         on_delete=models.CASCADE
     )
-    ingredient = models.ForeignKey(
+    tag = models.ForeignKey(
         Tag,
         on_delete=models.CASCADE
     )
