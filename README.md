@@ -20,5 +20,5 @@
 
 Данные для входа под админом:
 
-email: admin@mail.ru
+email: admin@mail.ru 
 password: admin
