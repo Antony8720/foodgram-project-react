@@ -56,6 +56,13 @@ class RecipeIngredientWriteSerializer(RecipeIngredientSerializer):
         model = RecipeIngredient
         fields = ('amount', 'id',)
 
+    def validate_amount(self, value):
+        if value < 1:
+            raise serializers.ValidationError(
+                'Убедитесь, что количество ингредиентов больше 1'
+            )
+        return value
+
 
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
@@ -120,9 +127,15 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         tags = validated_data.pop('tags')
         recipe = Recipe.objects.create(**validated_data)
         for ingredient_item in ingredients:
-            print(ingredient_item)
             ing = ingredient_item.get('id').pk
             amt = ingredient_item.get('amount')
+            if RecipeIngredient.objects.filter(
+                ingredient_id=ing,
+                amount=amt
+            ).exists():
+                raise serializers.ValidationError(
+                    'Убедитесь, что отсутствуют повторяющиеся ингредиенты'
+                )
             new_ri, _ = RecipeIngredient.objects.get_or_create(
                 ingredient_id=ing, amount=amt)
             recipe.ingredients.add(new_ri)

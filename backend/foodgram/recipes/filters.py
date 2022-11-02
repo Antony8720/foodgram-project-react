@@ -36,8 +36,10 @@ class RecipeFilter(filters.FilterSet):
         user = self.request.user
         if not user.is_authenticated:
             return queryset
+        kwargs = {f"{name}__in": (user,)}
         if value == 0:
             return queryset.exclude(**kwargs)
+
         return queryset.filter(**kwargs)
 
     def filter_tags(self, queryset, name, value):
