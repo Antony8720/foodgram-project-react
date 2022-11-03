@@ -8,6 +8,8 @@ from .serializers import UserSubscribeSerializer
 
 
 class UserSubscribeViewSet(AddingDeletingViewSet):
+    """Вьюсет подписки на пользователя"""
+
     model_class = User
     serializer_class = UserSubscribeSerializer
     router_pk = 'user_id'
@@ -35,6 +37,8 @@ class UserSubscribeViewSet(AddingDeletingViewSet):
 
 
 class SubscriptionsViewSet(ListModelViewSet):
+    """Вюсет списка подписок"""
+
     serializer_class = UserSubscribeSerializer
     permissions_classes = (permissions.IsAuthenticated,)
     pagination_class = PageNumberLimitPagination

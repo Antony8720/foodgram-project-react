@@ -14,6 +14,8 @@ from .viewsets import AddingDeletingViewSet, PdfGenerateView
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
+    """Вюсет рецепта"""
+
     queryset = Recipe.objects.all()
     permission_classes = (OwnerOrReadOnly,)
     filter_backends = (DjangoFilterBackend, OrderingFilter)
@@ -23,6 +25,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
     ordering_fields = ("id",)
 
     def get_serializer_class(self):
+        """Выбор сериализатора в зависимости от типа запроса"""
+
         if self.action in (
             'create',
             'partial_update',
@@ -33,6 +37,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
 
 class TagViewSet(viewsets.ModelViewSet):
+    """Вюсет тэга"""
+
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     permission_classes = (AllowAny,)
@@ -40,6 +46,8 @@ class TagViewSet(viewsets.ModelViewSet):
 
 
 class IngredientViewSet(viewsets.ModelViewSet):
+    """Вюсет ингредиента"""
+
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     permission_classes = (AllowAny,)
@@ -49,6 +57,8 @@ class IngredientViewSet(viewsets.ModelViewSet):
 
 
 class RecipeFavoriteViewSet(AddingDeletingViewSet):
+    """Вюсет рецепта при добавлении в избранное"""
+
     model_class = Recipe
     serializer_class = RecipeSmallSerializer
     router_pk = 'recipe_id'
@@ -70,6 +80,8 @@ class RecipeFavoriteViewSet(AddingDeletingViewSet):
 
 
 class RecipeCartViewSet(AddingDeletingViewSet):
+    """Вюсет рецепта при добавлении в список покупок"""
+
     model_class = Recipe
     serializer_class = RecipeSmallSerializer
     router_pk = 'recipe_id'
@@ -91,6 +103,7 @@ class RecipeCartViewSet(AddingDeletingViewSet):
 
 
 class RecipeShoppingCartDownloadView(PdfGenerateView):
+    """Задает структура файла 'список покупок'"""
     filename = 'Shopping_cart.pdf'
 
     def get_text_lines(self):

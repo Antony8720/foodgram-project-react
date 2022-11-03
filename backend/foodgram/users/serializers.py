@@ -8,6 +8,8 @@ from .models import User
 
 
 class UserRegSerializer(UserCreateSerializer):
+    """Сериализатор регистрации пользователя"""
+
     class Meta(UserCreateSerializer.Meta):
         model = User
         fields = ('email', 'id', 'password', 'username', 'first_name',
@@ -15,6 +17,8 @@ class UserRegSerializer(UserCreateSerializer):
 
 
 class MyUserSerializer(UserSerializer):
+    """Сериализатор пользователя"""
+
     is_subscribed = serializers.SerializerMethodField()
 
     class Meta(UserSerializer.Meta):
@@ -30,6 +34,8 @@ class MyUserSerializer(UserSerializer):
 
 
 class UserSubscribeSerializer(MyUserSerializer):
+    """Сериализатор подписки на пользователя"""
+
     recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
 

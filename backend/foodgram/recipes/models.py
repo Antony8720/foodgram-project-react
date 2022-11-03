@@ -4,6 +4,8 @@ from users.models import User
 
 
 class Ingredient(models.Model):
+    """Модель ингредиентов"""
+
     name = models.CharField(
         max_length=200
     )
@@ -17,6 +19,8 @@ class Ingredient(models.Model):
 
 
 class Tag(models.Model):
+    """Модель тэгов"""
+
     name = models.CharField(
         max_length=200,
         verbose_name='Название',
@@ -40,6 +44,9 @@ class Tag(models.Model):
 
 
 class RecipeIngredient(models.Model):
+    """Промежуточная модель между рецептом и ингредиентом с дополнительным
+     полем amount"""
+
     ingredient = models.ForeignKey(
         Ingredient,
         related_name='ingredient_in_recipe',
@@ -51,6 +58,8 @@ class RecipeIngredient(models.Model):
 
 
 class Recipe(models.Model):
+    """Модель рецептов"""
+
     ingredients = models.ManyToManyField(
         RecipeIngredient,
         related_name='recipes',
@@ -92,6 +101,8 @@ class Recipe(models.Model):
 
 
 class RecipeTag(models.Model):
+    """Промежуточная модель между рецептом и тэгом"""
+
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE

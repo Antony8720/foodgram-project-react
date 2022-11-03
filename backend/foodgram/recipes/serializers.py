@@ -8,6 +8,8 @@ from .models import Ingredient, Recipe, RecipeIngredient, Tag
 
 
 class Base64ImageField(serializers.ImageField):
+    """Задает кастомное поле для картинки"""
+
     def to_internal_value(self, data):
         if isinstance(data, str) and data.startswith('data:image'):
             format, imgstr = data.split(';base64,')
@@ -17,12 +19,16 @@ class Base64ImageField(serializers.ImageField):
 
 
 class IngredientSerializer(serializers.ModelSerializer):
+    """Сериализатор ингредиента"""
+
     class Meta:
         model = Ingredient
         fields = ('id', 'name', 'measurement_unit',)
 
 
 class RecipeIngredientSerializer(serializers.ModelSerializer):
+    """Сериализатор промежуточной модели рецепт-ингредиент"""
+
     id = serializers.SerializerMethodField()
     measurement_unit = serializers.SerializerMethodField()
     name = serializers.SerializerMethodField()
@@ -46,6 +52,8 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
 
 
 class RecipeIngredientWriteSerializer(RecipeIngredientSerializer):
+    """Сериализатор промежуточной модели рецепт-ингредиент на запись"""
+
     id = serializers.PrimaryKeyRelatedField(
         queryset=Ingredient.objects.all(),
         required=True,
@@ -65,12 +73,16 @@ class RecipeIngredientWriteSerializer(RecipeIngredientSerializer):
 
 
 class TagSerializer(serializers.ModelSerializer):
+    """Сериализатор тэга"""
+
     class Meta:
         model = Tag
         fields = ('id', 'name', 'color', 'slug',)
 
 
 class RecipeSerializer(serializers.ModelSerializer):
+    """Сериализатор рецепта"""
+
     tags = TagSerializer(
         many=True,
         required=True
@@ -92,12 +104,16 @@ class RecipeSerializer(serializers.ModelSerializer):
                   'image', 'text', 'cooking_time',)
 
     def get_is_favorited(self, obj):
+        """Вычисление поля находится ли в избранном"""
+
         user = self.context.get('request').user
         if not user.is_authenticated:
             return False
         return user.favorite.filter(id=obj.id).exists()
 
     def get_is_in_shopping_cart(self, obj):
+        """Вычисление поля находится ли в корзине"""
+
         user = self.context.get('request').user
         if not user.is_authenticated:
             return False
@@ -105,6 +121,8 @@ class RecipeSerializer(serializers.ModelSerializer):
 
 
 class RecipeWriteSerializer(serializers.ModelSerializer):
+    """Сериализатор рецепта на запись"""
+
     ingredients = RecipeIngredientWriteSerializer(
         many=True,
         required=True
@@ -122,6 +140,8 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
                   'text', 'cooking_time',)
 
     def create(self, validated_data):
+        """Создание объектов модели с проверкой на повтор ингредиентов"""
+
         validated_data['author'] = self.context.get('request').user
         ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
@@ -145,12 +165,21 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         return recipe
 
     def update(self, recipe, validated_data):
+        """Редактирование объектов модели с проверкой на повтор ингредиентов"""
+
         if 'ingredients' in validated_data:
             ingredients = validated_data.pop('ingredients')
             recipe.ingredients.clear()
             for ingredient_item in ingredients:
                 ing = ingredient_item.get('id')
                 amt = ingredient_item.get('amount')
+                if RecipeIngredient.objects.filter(
+                    ingredient_id=ing,
+                    amount=amt
+                ).exists():
+                    raise serializers.ValidationError(
+                        'Убедитесь, что отсутствуют повторяющиеся ингредиенты'
+                    )
                 new_ri, _ = RecipeIngredient.objects.get_or_create(
                     ingredient_id=ing, amount=amt)
                 recipe.ingredients.add(new_ri)
@@ -160,11 +189,15 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         return super().update(recipe, validated_data)
 
     def to_representation(self, Recipe):
+        """Вывод данных с другого сериализатора после записи"""
+
         serializer = RecipeSerializer(instance=Recipe, context=self.context)
         return serializer.data
 
 
 class RecipeSmallSerializer(serializers.ModelSerializer):
+    """Сериализатор рецепта с частичными данными"""
+
     class Meta:
         model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time',)

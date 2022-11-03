@@ -14,6 +14,8 @@ from .mixins import CreteDestroyModelViewSet
 
 
 class AddingDeletingViewSet(CreteDestroyModelViewSet):
+    """Вьюсет для добавления и удаления записей"""
+
     model_class = models.Model
     router_pk = 'id'
     error_text_create = 'Невозможно добавить запись'
@@ -63,6 +65,8 @@ class AddingDeletingViewSet(CreteDestroyModelViewSet):
 
 
 class PdfGenerateView(views.APIView):
+    """Вьюсет для генерации PDF файла"""
+
     permission_classes = (permissions.IsAuthenticated,)
     font_path = './assets/FreeSans.ttf'
     filename = 'file.pdf'

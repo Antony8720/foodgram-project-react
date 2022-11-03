@@ -1,7 +1,6 @@
 from django_filters import BaseInFilter, CharFilter
-from django_filters import AllValuesMultipleFilter, NumberFilter, CharFilter
+from django_filters import NumberFilter
 from django_filters import rest_framework as filters
-from django_filters.widgets import BooleanWidget
 from rest_framework.filters import SearchFilter
 
 from .models import Recipe
@@ -10,11 +9,14 @@ from .models import Recipe
 class CharInFilter(BaseInFilter, CharFilter):
     pass
 
+
 class IngredientSearchFilter(SearchFilter):
     search_param = 'name'
 
 
 class RecipeFilter(filters.FilterSet):
+    """Класс задает фильтрацию по полям модели Recipe"""
+
     is_favorited = NumberFilter(
         field_name="users_favorited",
         method="filter_is_user_in_list",
@@ -33,16 +35,17 @@ class RecipeFilter(filters.FilterSet):
     )
 
     def filter_is_user_in_list(self, queryset, name, value):
+        """Проверяет, есть ли пользователь в списке"""
         user = self.request.user
         if not user.is_authenticated:
             return queryset
         kwargs = {f"{name}__in": (user,)}
         if value == 0:
             return queryset.exclude(**kwargs)
-
         return queryset.filter(**kwargs)
 
     def filter_tags(self, queryset, name, value):
+        """Фильтрует список по тэгам"""
         tags = self.request.GET.getlist("tags")
         return queryset.filter(**{f"{name}__in": tags}).distinct()
 
